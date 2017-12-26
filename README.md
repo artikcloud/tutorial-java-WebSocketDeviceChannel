@@ -1,107 +1,114 @@
-ARTIK Cloud Java/Android SDK
-================
-This SDK helps you connect your Java or Android apps to ARTIK Cloud. The SDK exposes a number of methods to easily execute REST and WebSockets API calls to ARTIK Cloud. 
+# Tutorial Java Firehose WebSocket
 
-Prerequisites
--------------
+This is a starter code to connect to ARTIK Cloud [Firehose WebSocket (/live)](https://developer.artik.cloud/documentation/data-management/rest-and-websockets.html#firehose-websocket) endpoint using ARTIK Cloud Java SDK.  By running this sample you will learn to:
 
- * [Maven](http://maven.apache.org/) or [Maven Integration for Eclipse](https://www.eclipse.org/m2e/)
- * JavaSE 1.7 or above 
+- Connect to the ARTIK Cloud Firehose WebSocket url.
+- Monitor realtime messages sent to ARTIK Cloud by the specified source device.
 
-The SDK was developed with Maven and tested with Android 4.4.2. Building Maven will fetch the correct libraries. You might be able to build the SDK in a different environment and we would be happy to hear about your (success) stories.
+Consult [An IoT remote control](https://developer.artik.cloud/documentation/tutorials/an-iot-remote-control.html#develop-an-android-app) for how to develop an Android monitor app.
 
-Installation
----------------------
+## Requirements
 
-You can generate the SDK libraries using one of the following ways. 
+- Java 7 or higher 
+- ARTIK Cloud Java SDK (version >= 2.1.2)
+- [Apache Maven](https://maven.apache.org/download.cgi)
 
-If using Maven command line,
-- run "mvn clean install -DskipTests" in the root directory of the repository to install to your local Maven repository.
+## Setup
 
-If using Eclipse, 
-- import the SDK library project as "Existing Maven Projects".
-- right click the project, and choose "Run As" then "Maven install"
+### Setup at ARTIK Cloud
 
-Use the Libraries
----------------------
+1. At My ARTIK Cloud, [connect a device](https://my.artik.cloud/new_device/cloud.artik.example.simple_smartlight) of the type "Example Simple Smart Light" (unique type name `cloud.artik.example.simple_smartlight`). You can use the one that you already own.
 
-After the generation succeeds, you can use the generated libraries in one of the following ways depending on your scenario:
 
-- To use them in an Android Studio project, copy `artikcloud-java-x.x.x.jar` under `target` and all jar files under `target/lib` directories of the imported Maven project to `app/libs` directory in your Android Studio project. In the `build.gradle` of `app` module, declare the dependency of your Android application on the libraries as following.
+2. Get the device ID for your newly created device in the [Device Info](https://developer.artik.cloud/documentation/tools/web-tools.html#managing-a-device-token) screen.
+3. Retrieve a [user token](https://developer.artik.cloud/documentation/tools/api-console.html#find-your-user-token) using our api-console, or via oauth2 authentication with your own application. 
 
-~~~
-dependencies {
-    // Local binary dependency
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-}
-~~~
+### Setup Java Project
 
-- To use them in your Maven project, modify `pom.xml` file in your project to add dependency to sami-android-2.x.x.jar under `target` of the imported Maven project as following
+1. Clone this repository if you haven't already done so.
 
-~~~
-<dependency>
-    <groupId>cloud.artik</groupId>
-    <artifactId>artikcloud-java</artifactId>
-    <version>2.0.0</version>
-    <scope>compile</scope>
-</dependency>
-~~~
+2. At the root directory and run the command:
 
-Finally, in your Android project's `AndroidManifest.xml`, add the permissions required by the SDK library. You could accomplish this automatically if you are using manifest merger (`manifestmerger.enabled`, requires SDK tools rev 20 or above).
+   ```
+   mvn clean package
+   ```
 
-~~~
-<uses-permission android:name="android.permission.INTERNET" />
-~~~
+   The executable `websocket-monitor-x.x.jar` is generated under the target directory.
 
-Use the Libraries from Maven Central Repository
----------------------
+3. Run the command at the target directory to learn the usage:
 
-You can use the official library released at maven.org.
+   ```
+   java -jar websocket-monitor-x.x.jar
+   ```
 
-- To use them in an Android Studio project, change dependency mentioned above to the following:
+## Demo:
 
-~~~
-dependencies {
-    compile 'cloud.artik:artikcloud-java:2.0.3'
-}
-~~~
+1. Start and run the following command in the target directory:
 
-You need to modify the `AndroidManifest.xml` as mentioned above.
+```
+java -jar websocket-monitor-x.x.jar -device YOUR_DEVICE_ID -token YOUR_USER_TOKEN
+```
 
-- To use the official library in your Maven project, modify `pom.xml` file in your project as mentioned above.
+2. Send messages to your Example Simple Smart Light using the [Online Device Simulator](https://developer.artik.cloud/documentation/tools/web-tools.html#using-the-online-device-simulator).   Simulate the device with following settings:
 
-Coding Recommendation
-------
+```
+* Simulate data on the boolean "state" field with default 5000 ms (5 secs).   
+* Alternative between true/false value by setting the data pattern to "alternating boolean".
+```
 
-It's recommended to create an instance of `ApiClient` per thread in a multithreaded environment to avoid any potential issue.
+2. In your running sample application you will see the received messages.    Here is the example output:
 
-Usage
-------
+```bash
+Connecting to: wss://api.artik.cloud/v1.1/live?authorization=bearer+aa176...&device=bb101...
+Status: CONNECTING ...
+Connection successful with code:[101]
 
-Peek into [tests](https://github.com/artikcloud/artikcloud-java/tree/master/src/test/java/cloud/artik) for examples about how to use the SDK.
+Received ping with ts:[1507328677960]
 
-In addition, you can look at our tutorial and sample applications. These will give you a good overview of what you can do and how to do it. Read more about it at
+Received message:[class MessageOut {
+    data: {state=true}
+    cid: null
+    ddid: null
+    sdid: bb101...
+    ts: 1507328710000
+    type: message
+    mid: ba31d3eb38e342a49226828ff1dac58d
+    uid: ff123...
+    sdtid: dtd1d3e0934d9348b783166938c0380128
+    cts: 1507328699982
+    mv: 1
+}]
 
-- https://developer.artik.cloud/documentation/tutorials/your-first-android-app.html
-- https://developer.artik.cloud/documentation/tutorials/an-iot-remote-control.html
+Received message:[class MessageOut {
+    data: {state=false}
+    cid: null
+    ddid: null
+    sdid: bb101...
+    ts: 1507328715000
+    type: message
+    mid: 8070d27294f04620a82b389c9e768aab
+    uid: ff123...
+    sdtid: dtd1d3e0934d9348b783166938c0380128
+    cts: 1507328704710
+    mv: 1
+}]
+Received ping with ts:[1507328707969]
+```
 
-More about ARTIK Cloud
-----------------------
+3. Stop the simulation so it does not accrue any more data usage.
 
-If you are not familiar with ARTIK Cloud, we have extensive documentation at https://developer.artik.cloud/documentation
+## More about ARTIK Cloud
 
-The full ARTIK Cloud API specification can be found at https://developer.artik.cloud/documentation/api-reference/
+If you are not familiar with ARTIK Cloud, we have extensive documentation at <https://developer.artik.cloud/documentation>
 
-Check out advanced sample applications at https://developer.artik.cloud/documentation/samples/
+The full ARTIK Cloud API specification can be found at <https://developer.artik.cloud/documentation/api-reference/>
 
-To create and manage your services and devices on ARTIK Cloud, create an account at https://developer.artik.cloud
+Peek into advanced sample applications at [https://developer.artik.cloud/documentation/tutorials/code-samples](https://developer.artik.cloud/documentation/tutorials/code-samples/)
 
-Also see the ARTIK Cloud blog for tutorials, updates, and more: http://artik.io/blog/cloud
+To create and manage your services and devices on ARTIK Cloud, visit the Developer Dashboard at [https://developer.artik.cloud](https://developer.artik.cloud/)
 
-License and Copyright
----------------------
+## License and Copyright
 
-Licensed under the Apache License. See [LICENSE](https://github.com/artikcloud/artikcloud-java/blob/master/LICENSE).
+Licensed under the Apache License. See [LICENSE](./LICENSE).
 
-Copyright (c) 2016 Samsung Electronics Co., Ltd.
-# tutorial-java-WebSocketDeviceChannel
+Copyright (c) 2017 Samsung Electronics Co., Ltd.
