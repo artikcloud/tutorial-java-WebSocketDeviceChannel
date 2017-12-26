@@ -7,8 +7,6 @@ This is a starter code to connect to ARTIK Cloud [Device Channel WebSocket (/web
 - Receive Actions 
 - Send messages to report the latest state
 
-Consult [An IoT remote control](https://developer.artik.cloud/documentation/tutorials/an-iot-remote-control.html#develop-an-android-app) for how to develop an Android monitor app.
-
 ## Requirements
 
 - Java 7 or higher 
