@@ -1,6 +1,8 @@
 package cloud.artik.example;
 
 import cloud.artik.model.Acknowledgement;
+import cloud.artik.model.ActionDetails;
+import cloud.artik.model.ActionDetailsArray;
 import cloud.artik.model.ActionOut;
 import cloud.artik.model.MessageIn;
 import cloud.artik.model.MessageOut;
@@ -33,6 +35,8 @@ public class WebSocketDeviceChannel {
     static private String deviceToken  = null;
 
 	private static final int MIN_EXPECTED_ARGUMENT_NUMBER = 4;
+	private static final String ACTION_SET_ON = "seton";
+	private static final String ACTION_SET_OFF = "setoff";
 
 	static ArrayList<String> queryParams = new ArrayList<String>();
 	
@@ -43,7 +47,7 @@ public class WebSocketDeviceChannel {
 			mDeviceChannelWS = new DeviceChannelWebSocket(true, new ArtikCloudWebSocketCallback() {
 	            @Override
 	            public void onOpen(int i, String s) {
-	                System.out.println("Registering " + deviceId);
+	                System.out.println("DeviceChannelWebSocket::onOpen: registering device " + deviceId + " with token " + deviceToken);
 	
 	                RegisterMessage registerMessage = new RegisterMessage();
 	                registerMessage.setAuthorization("bearer " + deviceToken);
@@ -51,7 +55,6 @@ public class WebSocketDeviceChannel {
 	                registerMessage.setSdid(deviceId);
 	
 	                try {
-	                	System.out.println("DeviceChannelWebSocket::onOpen: registering" + deviceId);
 	                    mDeviceChannelWS.registerChannel(registerMessage);
 	                } catch (IOException e) {
 	                    e.printStackTrace();
@@ -60,30 +63,44 @@ public class WebSocketDeviceChannel {
 	
 	            @Override
 	            public void onMessage(MessageOut messageOut) {
-	               System.out.println("DeviceChannelWebSocket::onMessage(" + messageOut.toString());
+	               System.out.println("DeviceChannelWebSocket::onMessage: " + messageOut.toString());
 	            }
 	
 	            @Override
 	            public void onAction(ActionOut actionOut) {
-	                System.out.println("DeviceChannelWebSocket::onAction(" + actionOut.toString());
+	                System.out.println("DeviceChannelWebSocket::onAction: " + actionOut.toString());
+	     
+	                boolean stateAfterAction = false;
 	                
-	                //Send back message with random value
+	                ActionDetailsArray actions = actionOut.getData();
+	                //Assume only 1 action in this message. So only look at the 1st one
+	                ActionDetails action = actions.getActions().get(0);
+	                String actionName = action.getName();
+	                if (actionName.compareToIgnoreCase(ACTION_SET_ON) == 0) {
+	                	stateAfterAction = true;
+	                } else if  (actionName.compareToIgnoreCase(ACTION_SET_OFF) == 0) {
+	                	stateAfterAction = false;
+	                } else {
+	                	System.out.println("Do nothing since receiving unknown action -- " + actionName);
+	                	return;
+	                }
+	                
+	                //Send back message with updated state
 	                MessageIn messageIn = new MessageIn();
 	                messageIn.sdid(deviceId);
-	                messageIn.getData().put("state", true);
+	                messageIn.getData().put("state", stateAfterAction);
 	                messageIn.setTs(System.currentTimeMillis());
 	                try {
 	                    mDeviceChannelWS.sendMessage(messageIn);
-	                    System.out.println("DeviceChannelWebSocket sendMessage:" + messageIn.toString());
+	                    System.out.println("DeviceChannelWebSocket sendMessage: " + messageIn.toString());
 	                } catch (IOException e) {
 	                    e.printStackTrace();
 	                }
-
 	            }
 	
 	            @Override
 	            public void onAck(Acknowledgement acknowledgement) {
-	                System.out.println("DeviceChannelWebSocket::onAck(" + acknowledgement.toString());
+	                System.out.println("DeviceChannelWebSocket::onAck: " + acknowledgement.toString());
 	           }
 	
 	            @Override
@@ -104,13 +121,8 @@ public class WebSocketDeviceChannel {
 	 
 		    });
 	    
-    		System.out.println(String.format("Connecting to: wss://api.artik.cloud/v1.1/websocket with", deviceToken));
+    		System.out.println("Connecting to: wss://api.artik.cloud/v1.1/websocket");
     		
-    		System.out.println("With query parameters:");
-    		
-    		for(String params: queryParams ) {
-    			 System.out.println("  "  + params);
-    		}
             mDeviceChannelWS.connect();
     				
     		System.out.println("Status: " + mDeviceChannelWS.getConnectionStatus());
