@@ -59,7 +59,7 @@ After completing this sample, you will learn how to:
 
  2. Send Actions to the emulator using the [web tool](https://developer.artik.cloud/documentation/tutorials/an-iot-remote-control.html#test-the-light) at My ARTIK Cloud.
 
- 3. The emulator terminal should show that Actions are received from the subscribed topic and updated states (on or off) are published back to ARTIK Cloud. The following is the example:
+ 3. The emulator terminal should show that Actions are received and updated states (on or off) are sent back to ARTIK Cloud. The following is the example:
     ~~~shell
     DeviceChannelWebSocket::onAction: class ActionOut {
         data: class ActionDetailsArray {
