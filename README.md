@@ -40,22 +40,22 @@ After completing this sample, you will learn how to:
 ## Demo:
 
  1. Start and run the following command in the target directory:
-   ~~~
-   java -jar websocket-monitor-x.x.jar -d YOUR_DEVICE_ID -t YOUR_DEVICE_TOKEN
-   ~~~
-   After the channel is successfully estabilished, the app should receive registration acknowledgement as following:
-   ~~~
-   Connecting to: wss://api.artik.cloud/v1.1/websocket
-   Status: CONNECTING
-   DeviceChannelWebSocket::onOpen: registering device 81788 with token 830
-   DeviceChannelWebSocket::onPing: 1514922438372
-   DeviceChannelWebSocket::onAck: class Acknowledgement {
-        mid: null
-        cid: myRegisterMessage
-        message: OK
-        code: 200
-    }
-   ~~~
+    ~~~
+    java -jar websocket-dc-smartlight-x.x.jar -d YOUR_DEVICE_ID -t YOUR_DEVICE_TOKEN
+    ~~~
+    After the channel is successfully estabilished, the app should receive registration acknowledgement as following:
+    ~~~
+    Connecting to: wss://api.artik.cloud/v1.1/websocket
+    Status: CONNECTING
+    DeviceChannelWebSocket::onOpen: registering device 81788 with token 830
+    DeviceChannelWebSocket::onPing: 1514922438372
+    DeviceChannelWebSocket::onAck: class Acknowledgement {
+         mid: null
+         cid: myRegisterMessage
+         message: OK
+         code: 200
+     }
+    ~~~
 
  2. Send Actions to the emulator using the [web tool](https://developer.artik.cloud/documentation/tutorials/an-iot-remote-control.html#test-the-light) at My ARTIK Cloud.
 
